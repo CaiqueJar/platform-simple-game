@@ -14,6 +14,7 @@ import entities.Enemy2;
 import entities.Entity;
 import entities.Flag;
 import entities.Player;
+import graphics.Background;
 import main.Game;
 
 public class World {
@@ -27,6 +28,12 @@ public class World {
 
 	public World(String path) {
 		try {
+			Game.player = new Player(0, 0);
+			Game.enemies = new ArrayList<Enemy>();
+			Game.miscellaneous = new ArrayList<Entity>();
+			
+			Game.backgrounds = new Background();
+			
 			BufferedImage map = ImageIO.read(getClass().getResource(path));
 
 			WIDTH = map.getWidth();

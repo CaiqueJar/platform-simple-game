@@ -11,10 +11,8 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -23,6 +21,7 @@ import javax.swing.JFrame;
 import entities.Enemy;
 import entities.Entity;
 import entities.Player;
+import graphics.Background;
 import graphics.EntitiesSprites;
 import graphics.Ui;
 import world.Camera;
@@ -35,71 +34,44 @@ public class Game extends Canvas implements Runnable, KeyListener {
 	public static final int WIDTH = 480, HEIGHT = 272, SCALE = 2;
 	private static Image icon;
 	
-	public InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream("Minecraft.ttf");
+	public static InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream("Minecraft.ttf");
 	public static Font newFont;
 	
-	
-	
 	public static Player player;
-	
-	
+	public static List<Enemy> enemies;
 	public static List<Entity> miscellaneous;
-	
+
+	public static Background backgrounds;
 	public static World world;
 
 	public static int actualLevel;
 
-	public static List<Enemy> enemies;
-	
-	public static BufferedImage background1, background2;
-	
-	public static String gameState = "menu";
+	public static String gameState = "present";
 	private MenuScreen menuScreen;
-	private Present present;
-	private GameoverScreen gameoverScreen;
-	
-	
+	private PresentScreen presentScreen;
+	private MapScreen mapScreen;
+	public static GameoverScreen gameoverScreen;
 	
 	public Game() {
 		this.setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
 		this.addKeyListener(this);
 
 		new EntitiesSprites();
-		
 		try {
 			newFont = Font.createFont(Font.TRUETYPE_FONT, stream).deriveFont(30f);
+			icon = ImageIO.read(getClass().getResource("/icon.png"));
+
 		} catch (FontFormatException | IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
+		// Criação das telas
 		menuScreen = new MenuScreen();
-		present = new Present();
-		
-
-		player = new Player(0, 0);
-		
-		
-		enemies = new ArrayList<Enemy>();
-		
-		miscellaneous = new ArrayList<Entity>();
-		
-		world = new World("/level1.png");
-		//world = new World("/levelPlaceHolder.png");
-		//world = new World("/level4.png");
-		
-		try {
-			icon = ImageIO.read(getClass().getResource("/icon.png"));
-			background1 = ImageIO.read(getClass().getResource("/mountais.png"));
-			background2 = ImageIO.read(getClass().getResource("/clouds.png"));
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
+		presentScreen = new PresentScreen();
+		mapScreen = new MapScreen();
 		gameoverScreen = new GameoverScreen();
+
 	}
 
 	public static void main(String[] args) {
@@ -143,12 +115,17 @@ public class Game extends Canvas implements Runnable, KeyListener {
 					}
 				}
 			}
-			
-			
 		}
 		else if(gameState.equals("menu")) {
 			menuScreen.tick();
 			
+		}
+		else if(gameState.equals("mapSelecter")) {
+			mapScreen.tick();
+		}
+		else if(gameState.equals("gameOver")) {
+			gameoverScreen.tick();
+
 		}
 		
 	}
@@ -165,21 +142,11 @@ public class Game extends Canvas implements Runnable, KeyListener {
 		Graphics g = bs.getDrawGraphics();
 		//Graphics2D g2d = (Graphics2D) g;
 		
-		if(gameState.equals("game")) {
+		if(gameState.equals("game") || gameState.equals("gameOver")) {
 			g.setColor(new Color(0xFF5FCDE4));
 			g.fillRect(0, 0, WIDTH * SCALE, HEIGHT * SCALE);
 	
-			
-			for(int xx = 0; xx <= background2.getWidth() * 8; xx+=background2.getWidth()*SCALE) {
-				g.drawImage(background2, (xx-Camera.x)+player.getX()/8, HEIGHT*SCALE-80-Camera.y, background2.getWidth()*SCALE, background2.getHeight()*SCALE, null);
-			
-			}
-			
-			for(int xx = 0; xx <= background1.getWidth() * 8; xx+=background1.getWidth()*SCALE) {
-				g.drawImage(background1, xx-Camera.x, HEIGHT*SCALE-Camera.y, background1.getWidth()*SCALE, background1.getHeight()*SCALE, null);
-			
-			}
-		
+			backgrounds.render(g);
 			world.render(g);
 			player.render(g);
 			
@@ -196,18 +163,21 @@ public class Game extends Canvas implements Runnable, KeyListener {
 			
 			Ui.render(g);
 			gameoverScreen.render(g);
+
 			
 		}
 		else if(gameState.equals("level")) {
 			
 		}
+		else if(gameState.equals("mapSelecter")) {
+			mapScreen.render(g);
+		}
 		else if(gameState.equals("menu")) {
 			menuScreen.render(g);
 		}
 		else if(gameState.equals("present")) {
-			present.render(g);
+			presentScreen.render(g);
 		}
-		
 		bs.show();
 	}
 	
@@ -232,9 +202,17 @@ public class Game extends Canvas implements Runnable, KeyListener {
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
 		if(e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
+			if(gameState.equals("mapSelecter")) {
+				mapScreen.right = true;
+				return;
+			}
 			player.right = true;
 		}
 		else if(e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
+			if(gameState.equals("mapSelecter")) {
+				mapScreen.left = true;
+				return;
+			}
 			player.left = true;
 		}
 		else if(e.getKeyCode() == KeyEvent.VK_SPACE) {
@@ -261,6 +239,12 @@ public class Game extends Canvas implements Runnable, KeyListener {
 			if(gameState.equals("menu")) {
 				menuScreen.enter = true;
 			}
+			else if(gameState.equals("mapSelecter")) {
+				mapScreen.enter = true;
+			}
+			else if(gameState.equals("gameOver")) {
+				gameoverScreen.enter = true;
+			}
 		}
 		
 		if(e.getKeyCode() == KeyEvent.VK_Z) {
@@ -272,10 +256,12 @@ public class Game extends Canvas implements Runnable, KeyListener {
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
 		if(e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_D) {
-			player.right = false;
+			if(gameState.equals("game")) 
+				player.right = false;
 		}
 		else if(e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_A) {
-			player.left = false;
+			if(gameState.equals("game")) 
+				player.left = false;
 		}
 		
 		if(e.getKeyCode() == KeyEvent.VK_SPACE) {

@@ -8,6 +8,7 @@ import java.util.List;
 import graphics.Animation;
 import graphics.EntitiesSprites;
 import main.Game;
+import main.GameoverScreen;
 import main.Sound;
 import world.Camera;
 import world.World;
@@ -208,9 +209,11 @@ public class Player extends Entity {
 				}
 			}			
 		}
-		if(life <= 0) {
+		if(life <= 0 && gameOver == false) {
 			gameOver = true;
-			
+			Game.gameState = "gameOver";
+			Game.gameoverScreen = new GameoverScreen();
+
 		}
 	}
 

@@ -75,7 +75,7 @@ public class MenuScreen {
 				case "New Game":
 					//Game.gameState = "level";
 					
-					Game.gameState = "game";
+					Game.gameState = "mapSelecter";
 
 					Game.actualLevel = 1;
 					break;

@@ -3,7 +3,7 @@ package main;
 import java.awt.Graphics;
 import java.awt.Color;
 
-public class Present {
+public class PresentScreen {
 
 	private int timer, difference;
 	private boolean voltar;
