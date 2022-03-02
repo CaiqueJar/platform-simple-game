@@ -7,6 +7,7 @@ import main.Game;
 public class Enemy extends Entity {
 
 	public int timer;
+	public boolean dead;
 
 	public Enemy(int x, int y, int width, int height) {
 		super(x, y, width, height);

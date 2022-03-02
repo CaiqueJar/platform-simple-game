@@ -10,7 +10,7 @@ public class FireBall extends Entity {
 
 	public Animation sprite;
 	
-	public char dir;
+	public int dir;
 	public int spd = 4;
 	public int timer;
 	
@@ -34,10 +34,10 @@ public class FireBall extends Entity {
 		
 		timer++;
 		
-		if(dir == 'r') {
+		if(dir == 1) {
 			x+=spd;
 		}
-		else {
+		else if(dir == -1){
 			x-=spd;
 		}
 		
@@ -51,7 +51,7 @@ public class FireBall extends Entity {
 	public void render(Graphics g) {
 		sprite.animationTick();
 		
-		if(dir == 'r')
+		if(dir == 1)
 			sprite.renderTeste(g, "fire", 5, false);
 	
 		else

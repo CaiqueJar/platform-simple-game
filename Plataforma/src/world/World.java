@@ -237,7 +237,6 @@ public class World {
 			Game.miscellaneous = new ArrayList<Entity>();
 
 			Game.player = new Player(10, 10);
-			Game.miscellaneous.add(Game.player);
 
 			Game.world = new World("/level" + Game.actualLevel + ".png");
 		}

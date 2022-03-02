@@ -178,6 +178,13 @@ public class Boss extends Enemy {
 			
 		}
 		
+		if(getX() <= 96) {
+			dir = 1;
+		}
+		else if(getX() + getMwidth() >= 880){
+			dir = -1;
+		}
+		
 	}
 	
 	public void render(Graphics g) {
@@ -216,8 +223,8 @@ public class Boss extends Enemy {
 				sprites.renderTeste(g, "takingDamage", 5, true);
 		}
 		
-		g.setColor(new Color(225, 0, 0, 150));
-		g.fillRect(getMaskx() - Camera.x, getMasky() - Camera.y, getMwidth(), getMheight());
+		//g.setColor(new Color(225, 0, 0, 150));
+		//g.fillRect(getMaskx() - Camera.x, getMasky() - Camera.y, getMwidth(), getMheight());
 		//g.fillRect((Game.player.getX() + Game.player.getMwidth() - 4), Game.player.getY() - Camera.y, 4, 4);
 
 	}

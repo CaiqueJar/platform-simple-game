@@ -18,7 +18,7 @@ public class Player extends Entity {
 	private int maxFrame;
 
 	public boolean right, left;
-	public char lastDirection = 'r';
+	public int lastDirection = 1;
 	public String whatRUDoing = "stop";
 
 	public double spd = 3.5;
@@ -40,6 +40,15 @@ public class Player extends Entity {
 	public boolean jump, isJumping;
 	private double vspd = 0, gravity = 0.8;
 	
+	public boolean imortal;
+	public int imortalTime;
+	
+	public boolean takingDamage;
+	public int takingDamageTime;
+	
+	public boolean gameOver;
+	public double impulse = 15;
+	
 	public Player(int x, int y) {
 		super(x, y, 48, 48);
 		
@@ -58,28 +67,23 @@ public class Player extends Entity {
 	}
 
 	public void tick() {
-		super.tick();
-		
-		if (!win) {
-			// Sound.song1.loop();
+
+		if(gameOver) {
+			gameOver();
+		}
+		else if(win) {
+			win();
+			fallingAndJump();
+		}
+		else {
 			cameraUpdate();
 			moving();
 			fallingAndJump();
 			updateMaskCordenate(10, 0);
-			
+			takingDamage();
 			shoot();
 
-
-			for(int i = 0; i < fireBalls.size(); i++) {
-				fireBalls.get(i).tick();
-			}
-			
 		} 
-		else {
-			win();
-			fallingAndJump();
-		}
-		
 	}
 
 	public void cameraUpdate() {
@@ -100,34 +104,36 @@ public class Player extends Entity {
 
 
 	public void moving() {
-		whatRUDoing = "stop";
-		
-		if(right && World.isFree((int) (x + spd), getY())) {
-			x += spd;
-			whatRUDoing = "walking";
-			lastDirection = 'r';
-		}
-		else if(left && World.isFree((int) (x - spd), getY())) {
-			x -= spd;
-			whatRUDoing = "walking";
-			lastDirection = 'l';
+		if(takingDamage == false) {
+			whatRUDoing = "stop";
+			
+			if(right && World.isFree((int) (x + spd), getY())) {
+				x += spd;
+				whatRUDoing = "walking";
+				lastDirection = 1;
+			}
+			else if(left && World.isFree((int) (x - spd), getY())) {
+				x -= spd;
+				whatRUDoing = "walking";
+				lastDirection = -1;
+			}
 		}
 	}
 
 	public void fallingAndJump() {
 		
 		vspd+=gravity;
-		
-		if(!World.isFree((int)x, (int)(y+1)) && jump) {
-			vspd = -15; // Altura
-			jump = false;
-			isJumping = true;
-			//Sound.jump.play();
+		if(takingDamage == false) {
+			if(!World.isFree((int)x, (int)(y+1)) && jump) {
+				vspd = -15; // Altura
+				jump = false;
+				isJumping = true;
+				//Sound.jump.play();
+			}
+			
+			if(World.isFree((int)x, (int)(y-1)))
+				isJumping = true;
 		}
-		
-		if(World.isFree((int)x, (int)(y-1)))
-			isJumping = true;
-		
 		if(!World.isFree((int)x, (int)(y+vspd))) {
 			int signVsp = 0;
 
@@ -172,8 +178,46 @@ public class Player extends Entity {
 		y = y + vspd;
 	}
 
-	
+	public void takingDamage() {
+		if(imortal == false) {
+			for(int i = 0; i < Game.enemies.size(); i++) {
+				Enemy enemy = Game.enemies.get(i);
+				if(isColidding(this, enemy) && !enemy.dead) {
+					life--;
+					imortal = true;
+					takingDamage = true;
+					whatRUDoing = "takingDamage";
+				}
+			}
+		} 
+		else {
+			imortalTime++;
+			if(imortalTime >= 60*1.5) {
+				imortalTime = 0;
+				imortal = false;
+			}
+			
+			if(takingDamage == true) {
+				takingDamageTime++;
+				x -= 0.5*lastDirection;
+				if(takingDamageTime >= 60*0.5) {
+					takingDamageTime = 0;
+					whatRUDoing = "stop";
+					takingDamage = false;
+				}
+			}			
+		}
+		if(life <= 0) {
+			gameOver = true;
+			
+		}
+	}
 
+	public void gameOver() {
+		y-=impulse;
+		impulse-=0.5;
+
+	}
 	
 	public void win() {
 		if (win) {
@@ -204,6 +248,9 @@ public class Player extends Entity {
 				fireBalls.add(fireball);
 			}
 		}
+		for(int i = 0; i < fireBalls.size(); i++) {
+			fireBalls.get(i).tick();
+		}
 	}
 	
 	public void render(Graphics g) {
@@ -214,8 +261,8 @@ public class Player extends Entity {
 			fireball.render(g);
 		}
 		
-		g.setColor(new Color(225, 0, 0, 150));
-		g.fillRect(getMaskx() - Camera.x, getMasky() - Camera.y, getMwidth(), getMheight());
+		//g.setColor(new Color(225, 0, 0, 150));
+		//g.fillRect(getMaskx() - Camera.x, getMasky() - Camera.y, getMwidth(), getMheight());
 		
 	}
 
@@ -232,20 +279,20 @@ public class Player extends Entity {
 			
 			break;
 		case "takingDamage":
-			
+			maxFrame = 1;
 			break;
 		case "stop":
 			maxFrame = 10;
 			break;
 		}
-		
+
 		sprites.animationTick();
 		switch (lastDirection) {
-		case 'r':
+		case 1:
 			sprites.renderTeste(g, whatRUDoing, maxFrame, false);
 			break;
 
-		case 'l':
+		case -1:
 			sprites.renderTeste(g, whatRUDoing, maxFrame, true);
 			
 		}

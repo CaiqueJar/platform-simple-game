@@ -56,6 +56,7 @@ public class Enemy1 extends Enemy {
 			}
 
 			else if (dead) {
+				super.dead = true;
 				walking = false;
 				remover(0.5);
 			}

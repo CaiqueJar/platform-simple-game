@@ -20,7 +20,6 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
-import entities.Boss;
 import entities.Enemy;
 import entities.Entity;
 import entities.Player;
@@ -58,6 +57,12 @@ public class Game extends Canvas implements Runnable, KeyListener {
 	
 	public static BufferedImage background1, background2;
 	
+	private int alpha = 0;
+	private String[] gameOverLetters = "Game-Over".split("");
+	private String phraseGameOver = "";
+	private boolean showMessage;
+	private int messageTimer, index;
+	
 	public Game() {
 		this.setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
 		this.addKeyListener(this);
@@ -83,12 +88,9 @@ public class Game extends Canvas implements Runnable, KeyListener {
 		
 		miscellaneous = new ArrayList<Entity>();
 		
-		
-		miscellaneous.add(player);
-		
-		//world = new World("/level1.png");
+		world = new World("/level1.png");
 		//world = new World("/levelPlaceHolder.png");
-		world = new World("/level4.png");
+		//world = new World("/level4.png");
 		
 		try {
 			icon = ImageIO.read(getClass().getResource("/icon.png"));
@@ -127,18 +129,20 @@ public class Game extends Canvas implements Runnable, KeyListener {
 			//Sound.menuSong.stop();
 			
 			world.nextLevel();
+			player.tick();
 			
-			
-			for(int i = 0; i < enemies.size(); i++) {
-				Enemy enemy = enemies.get(i);
-				enemy.tick();
-			}
-			
-			
-			for(int i = 0; i < miscellaneous.size(); i++) {
-				Entity thing = miscellaneous.get(i);
-				if(thing.getX() <= Camera.x+WIDTH*SCALE) {
-					thing.tick();
+			if(player.gameOver == false){
+				for(int i = 0; i < enemies.size(); i++) {
+					Enemy enemy = enemies.get(i);
+					enemy.tick();
+				}
+				
+				
+				for(int i = 0; i < miscellaneous.size(); i++) {
+					Entity thing = miscellaneous.get(i);
+					if(thing.getX() <= Camera.x+WIDTH*SCALE) {
+						thing.tick();
+					}
 				}
 			}
 			
@@ -179,6 +183,7 @@ public class Game extends Canvas implements Runnable, KeyListener {
 			}
 		
 			world.render(g);
+			player.render(g);
 			
 			for(int i = 0; i < enemies.size(); i++) {
 				Enemy enemy = enemies.get(i);
@@ -192,6 +197,31 @@ public class Game extends Canvas implements Runnable, KeyListener {
 			
 			
 			Ui.render(g);
+			
+			if(player.gameOver) {
+				g.setColor(new Color(0, 0, 0, alpha));
+				
+				alpha += 2;
+				if(alpha >= 255) { 
+					alpha = 255;
+					showMessage = true;
+				}
+				g.fillRect(0, 0, WIDTH * SCALE, HEIGHT * SCALE);
+
+				if(showMessage) {
+					messageTimer++;
+					if(messageTimer % 8 == 0 && index < gameOverLetters.length) {
+						phraseGameOver += gameOverLetters[index];
+						index++;
+					}
+					g.setColor(Color.white);
+					g.setFont(Game.newFont);
+					g.drawString(phraseGameOver, WIDTH * SCALE / 2 - 150, 200);
+				}
+				
+				
+				
+			}
 		}
 		else if(gameState.equals("level")) {
 			
