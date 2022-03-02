@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-public class Menu {
+public class MenuScreen {
 
 	public BufferedImage[] menuLogo;
 	public BufferedImage[] newGame;
@@ -29,7 +29,7 @@ public class Menu {
 	public String actualOption = options[0];
 	public int selectedOption = 0;
 	
-	public Menu() {
+	public MenuScreen() {
 		menuLogo = new BufferedImage[6];
 		newGame = new BufferedImage[6];
 		loadGame = new BufferedImage[6];

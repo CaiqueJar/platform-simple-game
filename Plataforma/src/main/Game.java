@@ -38,13 +38,9 @@ public class Game extends Canvas implements Runnable, KeyListener {
 	public InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream("Minecraft.ttf");
 	public static Font newFont;
 	
-	public static String gameState = "menu";
 	
-	public static Menu menu;
-	public static Present present;
 	
 	public static Player player;
-	public static EntitiesSprites playerSprites;
 	
 	
 	public static List<Entity> miscellaneous;
@@ -57,11 +53,12 @@ public class Game extends Canvas implements Runnable, KeyListener {
 	
 	public static BufferedImage background1, background2;
 	
-	private int alpha = 0;
-	private String[] gameOverLetters = "Game-Over".split("");
-	private String phraseGameOver = "";
-	private boolean showMessage;
-	private int messageTimer, index;
+	public static String gameState = "menu";
+	private MenuScreen menuScreen;
+	private Present present;
+	private GameoverScreen gameoverScreen;
+	
+	
 	
 	public Game() {
 		this.setPreferredSize(new Dimension(WIDTH * SCALE, HEIGHT * SCALE));
@@ -76,10 +73,9 @@ public class Game extends Canvas implements Runnable, KeyListener {
 			e1.printStackTrace();
 		}
 		
-		menu = new Menu();
+		menuScreen = new MenuScreen();
 		present = new Present();
 		
-		playerSprites = new EntitiesSprites();
 
 		player = new Player(0, 0);
 		
@@ -102,6 +98,8 @@ public class Game extends Canvas implements Runnable, KeyListener {
 			e.printStackTrace();
 		}
 		
+		
+		gameoverScreen = new GameoverScreen();
 	}
 
 	public static void main(String[] args) {
@@ -149,7 +147,7 @@ public class Game extends Canvas implements Runnable, KeyListener {
 			
 		}
 		else if(gameState.equals("menu")) {
-			menu.tick();
+			menuScreen.tick();
 			
 		}
 		
@@ -197,37 +195,14 @@ public class Game extends Canvas implements Runnable, KeyListener {
 			
 			
 			Ui.render(g);
+			gameoverScreen.render(g);
 			
-			if(player.gameOver) {
-				g.setColor(new Color(0, 0, 0, alpha));
-				
-				alpha += 2;
-				if(alpha >= 255) { 
-					alpha = 255;
-					showMessage = true;
-				}
-				g.fillRect(0, 0, WIDTH * SCALE, HEIGHT * SCALE);
-
-				if(showMessage) {
-					messageTimer++;
-					if(messageTimer % 8 == 0 && index < gameOverLetters.length) {
-						phraseGameOver += gameOverLetters[index];
-						index++;
-					}
-					g.setColor(Color.white);
-					g.setFont(Game.newFont);
-					g.drawString(phraseGameOver, WIDTH * SCALE / 2 - 150, 200);
-				}
-				
-				
-				
-			}
 		}
 		else if(gameState.equals("level")) {
 			
 		}
 		else if(gameState.equals("menu")) {
-			menu.render(g);
+			menuScreen.render(g);
 		}
 		else if(gameState.equals("present")) {
 			present.render(g);
@@ -271,20 +246,20 @@ public class Game extends Canvas implements Runnable, KeyListener {
 		
 		if(e.getKeyCode() == KeyEvent.VK_UP) {
 			if(gameState.equals("menu")) {
-				menu.up = true;
+				menuScreen.up = true;
 			}
 			
 		}
 		else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
 			if(gameState.equals("menu")) {
-				menu.down = true;
+				menuScreen.down = true;
 			}
 			
 		}
 		
 		if(e.getKeyCode() == KeyEvent.VK_ENTER) {
 			if(gameState.equals("menu")) {
-				menu.enter = true;
+				menuScreen.enter = true;
 			}
 		}
 		

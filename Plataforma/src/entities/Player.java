@@ -187,6 +187,7 @@ public class Player extends Entity {
 					imortal = true;
 					takingDamage = true;
 					whatRUDoing = "takingDamage";
+					break;
 				}
 			}
 		} 
