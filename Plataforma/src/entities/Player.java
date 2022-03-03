@@ -1,6 +1,5 @@
 package entities;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +48,7 @@ public class Player extends Entity {
 	
 	public boolean gameOver;
 	public double impulse = 15;
+	public int nada;
 	
 	public Player(int x, int y) {
 		super(x, y, 48, 48);
